@@ -5,14 +5,13 @@ from app.database.models import Challenge
 
 
 def get_start_keyboard() -> InlineKeyboardMarkup:
-    """Main start screen inline keyboard."""
+    """Main start screen inline keyboard - compact for mobile."""
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text="🚀 Register for Challenge", callback_data="start_register")],
-            [InlineKeyboardButton(text="📋 My Registration Status", callback_data="my_status")],
             [
-                InlineKeyboardButton(text="💬 Support", callback_data="contact_support"),
-                InlineKeyboardButton(text="⚡ Developed by NextGen", url="https://t.me/shridharsan1")
+                InlineKeyboardButton(text="📋 My Status", callback_data="my_status"),
+                InlineKeyboardButton(text="💬 Support", url="https://t.me/primescalperbinary")
             ]
         ]
     )
@@ -63,11 +62,16 @@ def get_confirmation_keyboard() -> InlineKeyboardMarkup:
 
 
 def get_status_action_keyboard() -> InlineKeyboardMarkup:
-    """Inline keyboard for status screen."""
+    """Inline keyboard for status screen - compact layout."""
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="🔄 Refresh Status", callback_data="my_status")],
-            [InlineKeyboardButton(text="🚀 Register Another Challenge", callback_data="start_register")],
-            [InlineKeyboardButton(text="💬 Support", callback_data="contact_support")]
+            [
+                InlineKeyboardButton(text="🔄 Refresh", callback_data="my_status"),
+                InlineKeyboardButton(text="🚀 New Challenge", callback_data="start_register")
+            ],
+            [
+                InlineKeyboardButton(text="💬 Support", url="https://t.me/primescalperbinary"),
+                InlineKeyboardButton(text="🏠 Menu", callback_data="cancel_to_start")
+            ]
         ]
     )

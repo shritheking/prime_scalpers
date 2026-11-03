@@ -62,14 +62,16 @@ class InvitationService:
             f"• <b>Status:</b> Verified & Slot Allocated\n\n"
             f"🔗 <b>Your Private Channel Invite Link:</b>\n"
             f"{invite.invite_link}\n\n"
-            f"⚠️ <i>Single-use (1 member) • Valid for {expiry_hours}h • Support: @shridharsan1</i>\n\n"
+            f"⚠️ <i>Single-use (1 member) • Valid for {expiry_hours}h • Support: @primescalperbinary</i>\n\n"
             f"🛠️ <i>Developed by <a href=\"https://t.me/shridharsan1\">NextGen</a></i>"
         )
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
-                [InlineKeyboardButton(text="🚀 Open Channel Directly", url=invite.invite_link)],
-                [InlineKeyboardButton(text="📋 My Status", callback_data="my_status")],
-                [InlineKeyboardButton(text="⚡ Developed by NextGen", url="https://t.me/shridharsan1")]
+                [InlineKeyboardButton(text="🚀 Enter Private Channel", url=invite.invite_link)],
+                [
+                    InlineKeyboardButton(text="📋 My Status", callback_data="my_status"),
+                    InlineKeyboardButton(text="💬 Support", url="https://t.me/primescalperbinary")
+                ]
             ]
         )
 

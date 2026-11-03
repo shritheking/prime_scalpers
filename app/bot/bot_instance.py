@@ -29,7 +29,10 @@ def create_bot_and_dispatcher() -> tuple[Bot, Dispatcher]:
     """Factory creating bot and configured dispatcher."""
     bot = Bot(
         token=settings.BOT_TOKEN,
-        default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+        default=DefaultBotProperties(
+            parse_mode=ParseMode.HTML,
+            link_preview_is_disabled=True
+        )
     )
 
     dp = Dispatcher(storage=MemoryStorage())

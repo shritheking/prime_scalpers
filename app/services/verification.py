@@ -159,8 +159,10 @@ class VerificationService:
             kb = InlineKeyboardMarkup(
                 inline_keyboard=[
                     [InlineKeyboardButton(text="🔄 Check Deposit Again", callback_data=f"recheck_deposit:{registration.id}")],
-                    [InlineKeyboardButton(text="📋 My Registration Status", callback_data="my_status")],
-                    [InlineKeyboardButton(text="💬 Contact Support", callback_data="contact_support")]
+                    [
+                        InlineKeyboardButton(text="📋 My Status", callback_data="my_status"),
+                        InlineKeyboardButton(text="💬 Support", url="https://t.me/primescalperbinary")
+                    ]
                 ]
             )
             text = (

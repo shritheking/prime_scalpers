@@ -42,7 +42,7 @@ async def handle_start(message: Message, state: FSMContext, session: AsyncSessio
         "Welcome! Register for the challenge, verify your eligibility, and receive your private community invite link.\n\n"
         "• <b>Live Setups & Market Analysis</b>\n"
         "• <b>Private Community Access</b>\n"
-        "• <b>Direct Support:</b> @shridharsan1\n\n"
+        "• <b>Direct Support:</b> @primescalperbinary\n\n"
         "🛠️ <i>Developed by <a href=\"https://t.me/shridharsan1\">NextGen</a></i>"
     )
     await message.answer(welcome_text, reply_markup=get_start_keyboard(), parse_mode="HTML")
@@ -57,7 +57,7 @@ async def handle_cancel_to_start(callback: CallbackQuery, state: FSMContext) -> 
         "Welcome! Register for the challenge, verify your eligibility, and receive your private community invite link.\n\n"
         "• <b>Live Setups & Market Analysis</b>\n"
         "• <b>Private Community Access</b>\n"
-        "• <b>Direct Support:</b> @shridharsan1\n\n"
+        "• <b>Direct Support:</b> @primescalperbinary\n\n"
         "🛠️ <i>Developed by <a href=\"https://t.me/shridharsan1\">NextGen</a></i>"
     )
     await callback.message.edit_text(welcome_text, reply_markup=get_start_keyboard(), parse_mode="HTML")
@@ -456,16 +456,17 @@ async def handle_contact_support(callback: CallbackQuery) -> None:
     """Display official support contact information."""
     from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
     support_text = (
-        "💬 <b>NEXTGEN SUPPORT DESK</b>\n\n"
-        "• <b>Direct Admin:</b> @shridharsan1\n"
+        "💬 <b>PRIME SCALPERS SUPPORT</b>\n\n"
+        "• <b>Direct Support:</b> @primescalperbinary\n"
         f"• <b>Partner ID:</b> <code>{settings.QUOTEX_AFFILIATE_LINK_ID}</code>\n"
         f"• <b>Partner Link:</b> {settings.QUOTEX_AFFILIATE_LINK}\n\n"
-        "Tap below to message support directly:"
+        "Tap below to message support directly:\n\n"
+        "🛠️ <i>Developed by <a href=\"https://t.me/shridharsan1\">NextGen</a></i>"
     )
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="💬 Message @shridharsan1", url="https://t.me/shridharsan1")],
-            [InlineKeyboardButton(text="🔙 Back to Main Menu", callback_data="cancel_to_start")]
+            [InlineKeyboardButton(text="💬 Message @primescalperbinary", url="https://t.me/primescalperbinary")],
+            [InlineKeyboardButton(text="🔙 Back to Menu", callback_data="cancel_to_start")]
         ]
     )
     await callback.message.edit_text(support_text, reply_markup=kb, parse_mode="HTML")

@@ -37,12 +37,10 @@ class VerificationService:
 
         logger.info(f"Running automated verification for Reg #{registration.id} (Trader {registration.quotex_trader_id}) via {provider_name}...")
 
-        effective_min_deposit = 0.0 if settings.MINIMUM_DEPOSIT == 0 else challenge.minimum_deposit
-
         # 1. Query the provider
         result: TraderVerificationResult = await provider.verify_trader(
             trader_id=registration.quotex_trader_id,
-            minimum_deposit=effective_min_deposit,
+            minimum_deposit=challenge.minimum_deposit,
             expected_affiliate_id=challenge.affiliate_link_id
         )
 
@@ -157,7 +155,7 @@ class VerificationService:
         elif result.status == VerificationStatus.DEPOSIT_REQUIRED:
             # 2. Deposit required: Notify participant with direct Check Again button
             curr_dep = result.deposit_amount or 0.0
-            min_dep = 0.0 if settings.MINIMUM_DEPOSIT == 0 else challenge.minimum_deposit
+            min_dep = challenge.minimum_deposit
             kb = InlineKeyboardMarkup(
                 inline_keyboard=[
                     [InlineKeyboardButton(text="🔄 Check Deposit Again", callback_data=f"recheck_deposit:{registration.id}")],
@@ -166,14 +164,14 @@ class VerificationService:
                 ]
             )
             text = (
-                f"⚠️ <b>PRIME SCALPERS • DEPOSIT VERIFICATION UPDATE</b>\n\n"
-                f"<b>Challenge:</b> {challenge.name}\n"
-                f"<b>Quotex Trader ID:</b> <code>{registration.quotex_trader_id}</code>\n"
-                f"<b>Affiliate Link ID:</b> ✅ Matched (<code>{challenge.affiliate_link_id}</code>)\n\n"
-                f"<b>Current Verified Deposit:</b> ${curr_dep:.2f} USD\n"
-                f"<b>Minimum Required Deposit:</b> ${min_dep:.2f} USD\n\n"
-                f"Your account is correctly affiliated! However, channel access requires meeting the ${min_dep:.0f} minimum deposit threshold.\n\n"
-                f"<i>Once you have funded your Quotex balance, tap 'Check Deposit Again' below for instant automated re-verification.</i>"
+                f"⚠️ <b>DEPOSIT REQUIRED — NEXTGEN</b>\n\n"
+                f"• <b>Challenge:</b> {challenge.name}\n"
+                f"• <b>Trader ID:</b> <code>{registration.quotex_trader_id}</code>\n"
+                f"• <b>Affiliate ID:</b> ✅ Matched\n"
+                f"• <b>Current Deposit:</b> ${curr_dep:.2f} USD\n"
+                f"• <b>Required Minimum:</b> ${min_dep:.2f} USD\n\n"
+                f"💡 <i>Fund your Quotex account, then tap below to auto-verify instantly.</i>\n"
+                f"Support: @shridharsan1"
             )
             try:
                 await bot.send_message(chat_id=participant.telegram_id, text=text, reply_markup=kb, parse_mode="HTML")
@@ -181,14 +179,15 @@ class VerificationService:
                 logger.warning(f"Failed to DM participant: {e}")
 
         elif result.status == VerificationStatus.WRONG_AFFILIATE:
-            # 3. Wrong affiliate
+            # 3. Wrong affiliate (Short and clear)
             text = (
-                f"❌ <b>PRIME SCALPERS • AFFILIATE ATTRIBUTION MISMATCH</b>\n\n"
-                f"<b>Challenge:</b> {challenge.name}\n"
-                f"<b>Quotex Trader ID:</b> <code>{registration.quotex_trader_id}</code>\n\n"
-                f"Our automated verification check determined that this Trader ID is registered under a different referrer, not official Affiliate ID <code>{challenge.affiliate_link_id}</code>.\n\n"
-                f"To participate in Prime Scalpers Challenges, please register a new Quotex account using our official link:\n"
-                f"<code>{settings.QUOTEX_AFFILIATE_LINK}</code>"
+                f"❌ <b>AFFILIATE MISMATCH — NEXTGEN</b>\n\n"
+                f"• <b>Challenge:</b> {challenge.name}\n"
+                f"• <b>Trader ID:</b> <code>{registration.quotex_trader_id}</code>\n\n"
+                f"This Trader ID is not registered under our official affiliate partner link.\n\n"
+                f"👉 <b>Create an eligible account here:</b>\n"
+                f"{settings.QUOTEX_AFFILIATE_LINK}\n\n"
+                f"Need help? Contact @shridharsan1"
             )
             try:
                 await bot.send_message(chat_id=participant.telegram_id, text=text, parse_mode="HTML")
@@ -196,11 +195,13 @@ class VerificationService:
                 pass
 
         elif result.status == VerificationStatus.NOT_FOUND:
-            # 4. Trader not found
+            # 4. Trader not found (Short and clear)
             text = (
-                f"⚠️ <b>PRIME SCALPERS • TRADER ID NOT FOUND</b>\n\n"
-                f"Quotex Trader ID <code>{registration.quotex_trader_id}</code> could not be located in our partner records.\n"
-                f"Please verify that you registered under our official partner link: <code>{settings.QUOTEX_AFFILIATE_LINK}</code>"
+                f"⚠️ <b>TRADER ID NOT FOUND — NEXTGEN</b>\n\n"
+                f"• <b>Trader ID:</b> <code>{registration.quotex_trader_id}</code>\n\n"
+                f"Trader ID not found in partner records. Please ensure you registered via:\n"
+                f"{settings.QUOTEX_AFFILIATE_LINK}\n\n"
+                f"Need help? Contact @shridharsan1"
             )
             try:
                 await bot.send_message(chat_id=participant.telegram_id, text=text, parse_mode="HTML")

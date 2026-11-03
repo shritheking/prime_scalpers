@@ -86,6 +86,41 @@ async def handle_challenge_toggle(callback: CallbackQuery, session: AsyncSession
         await callback.answer("Update failed.")
 
 
+@router.callback_query(F.data.startswith("admin_chal_del_confirm:"))
+async def handle_challenge_delete_confirm(callback: CallbackQuery, session: AsyncSession) -> None:
+    """Prompt confirmation before deleting a challenge."""
+    from app.bot.keyboards.admin import get_challenge_delete_confirm_keyboard
+
+    challenge_id = int(callback.data.split(":")[1])
+    c = await ChallengeService.get_challenge_by_id(session, challenge_id)
+    if not c:
+        await callback.answer("Challenge not found.")
+        return
+
+    text = (
+        f"🗑️ <b>CONFIRM DELETE CHALLENGE</b>\n\n"
+        f"Are you sure you want to delete <b>{c.name}</b>?\n\n"
+        f"• <b>Minimum Deposit:</b> ${c.minimum_deposit:.0f}\n"
+        f"• <b>Allocated Slots:</b> {c.allocated_slots}/{c.max_slots}\n\n"
+        "⚠️ <i>If participants have already registered, the challenge will be safely archived.</i>"
+    )
+    await callback.message.edit_text(text, reply_markup=get_challenge_delete_confirm_keyboard(c.id), parse_mode="HTML")
+    await callback.answer()
+
+
+@router.callback_query(F.data.startswith("admin_chal_delete:"))
+async def handle_challenge_delete_execute(callback: CallbackQuery, session: AsyncSession) -> None:
+    """Execute challenge deletion or archive."""
+    challenge_id = int(callback.data.split(":")[1])
+    success, msg = await ChallengeService.delete_challenge(session, challenge_id)
+
+    if success:
+        await callback.answer(msg, show_alert=True)
+        await handle_challenges_list(callback, session)
+    else:
+        await callback.answer(f"Failed: {msg}", show_alert=True)
+
+
 @router.callback_query(F.data.startswith("admin_chal_slots:"))
 async def handle_challenge_edit_slots_start(callback: CallbackQuery, state: FSMContext, session: AsyncSession) -> None:
     """Prompt for new max slots value."""

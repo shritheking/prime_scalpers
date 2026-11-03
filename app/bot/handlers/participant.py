@@ -38,10 +38,11 @@ async def handle_start(message: Message, state: FSMContext, session: AsyncSessio
         )
 
     welcome_text = (
-        "<b>Welcome to Prime Scalpers Challenge!</b>\n\n"
-        "Register for the trading challenge, verify your eligibility, "
-        "track your registration status and receive exclusive access to the private challenge community.\n\n"
-        "<i>Your journey starts here.</i>"
+        "⚡ <b>NEXTGEN TRADING CHALLENGE</b>\n\n"
+        "Welcome! Register for the challenge, verify your eligibility, and receive your private community invite link.\n\n"
+        "• <b>Live Setups & Signals</b>\n"
+        "• <b>Private Community Access</b>\n"
+        "• <b>Direct Support:</b> @shridharsan1"
     )
     await message.answer(welcome_text, reply_markup=get_start_keyboard(), parse_mode="HTML")
 
@@ -51,10 +52,11 @@ async def handle_cancel_to_start(callback: CallbackQuery, state: FSMContext) -> 
     """Reset wizard and return to start menu."""
     await state.clear()
     welcome_text = (
-        "<b>Welcome to Prime Scalpers Challenge!</b>\n\n"
-        "Register for the trading challenge, verify your eligibility, "
-        "track your registration status and receive exclusive access to the private challenge community.\n\n"
-        "<i>Your journey starts here.</i>"
+        "⚡ <b>NEXTGEN TRADING CHALLENGE</b>\n\n"
+        "Welcome! Register for the challenge, verify your eligibility, and receive your private community invite link.\n\n"
+        "• <b>Live Setups & Signals</b>\n"
+        "• <b>Private Community Access</b>\n"
+        "• <b>Direct Support:</b> @shridharsan1"
     )
     await callback.message.edit_text(welcome_text, reply_markup=get_start_keyboard(), parse_mode="HTML")
     await callback.answer("Registration cancelled.")
@@ -75,8 +77,8 @@ async def handle_start_register(callback: CallbackQuery, state: FSMContext, sess
         return
 
     text = (
-        "🎯 <b>SELECT YOUR CHALLENGE TIER</b>\n\n"
-        "Choose an active challenge tier below to view minimum deposit requirements and available slots:\n"
+        "🎯 <b>SELECT CHALLENGE TIER</b>\n\n"
+        "Choose an active cohort below to view requirements and open slots:"
     )
     await state.set_state(RegistrationStates.selecting_challenge)
     await callback.message.edit_text(
@@ -98,7 +100,7 @@ async def handle_select_challenge(callback: CallbackQuery, state: FSMContext, se
         return
 
     if challenge.remaining_slots <= 0:
-        await callback.answer(f"Sorry, {challenge.name} slots are currently filled.", show_alert=True)
+        await callback.answer(f"Sorry, {challenge.name} slots are full.", show_alert=True)
         return
 
     # Check if participant already registered for this challenge
@@ -112,11 +114,11 @@ async def handle_select_challenge(callback: CallbackQuery, state: FSMContext, se
     existing = await RegistrationService.check_duplicate_registration(session, participant.id, challenge.id)
     if existing:
         await callback.message.edit_text(
-            f"⚠️ <b>Duplicate Registration Prevented</b>\n\n"
-            f"You have already submitted a registration for <b>{challenge.name}</b>.\n"
-            f"<b>Status:</b> {existing.status.value}\n"
-            f"<b>Verification:</b> {existing.verification_status.value}\n\n"
-            f"Use 'My Registration Status' to review progress.",
+            f"⚠️ <b>Already Registered</b>\n\n"
+            f"• <b>Challenge:</b> {challenge.name}\n"
+            f"• <b>Status:</b> {existing.status.value}\n"
+            f"• <b>Verification:</b> {existing.verification_status.value}\n\n"
+            f"Check details under 'My Registration Status'.",
             reply_markup=get_status_action_keyboard(),
             parse_mode="HTML"
         )
@@ -128,12 +130,11 @@ async def handle_select_challenge(callback: CallbackQuery, state: FSMContext, se
     await state.set_state(RegistrationStates.choosing_account_type)
 
     text = (
-        f"<b>Selected: {challenge.name}</b>\n"
-        f"<b>Minimum Deposit:</b> ${challenge.minimum_deposit:.0f} USD\n"
-        f"<b>Remaining Slots:</b> {challenge.remaining_slots}\n\n"
-        f"──────── Quotex Account Status ────────\n"
-        f"Eligibility requires verification through our official Quotex affiliate partner link.\n\n"
-        f"Do you need to create a new Quotex account or do you have an existing one?"
+        f"🎯 <b>{challenge.name}</b>\n\n"
+        f"• <b>Min Deposit:</b> ${challenge.minimum_deposit:.0f} USD\n"
+        f"• <b>Available Slots:</b> {challenge.remaining_slots}\n"
+        f"• <b>Partner ID:</b> <code>{settings.QUOTEX_AFFILIATE_LINK_ID}</code>\n\n"
+        "Do you need to create a new Quotex account or use an existing one?"
     )
     await callback.message.edit_text(text, reply_markup=get_account_type_keyboard(), parse_mode="HTML")
     await callback.answer()
@@ -146,14 +147,12 @@ async def handle_account_new(callback: CallbackQuery, state: FSMContext) -> None
     await state.set_state(RegistrationStates.viewing_affiliate_notice)
 
     text = (
-        "🔗 <b>CREATE YOUR QUOTEX ACCOUNT</b>\n\n"
-        "To qualify for the Prime Scalpers challenge:\n"
-        f"1. Click the link below to open our official partner registration portal:\n"
-        f"   <code>{settings.QUOTEX_AFFILIATE_LINK}</code>\n"
-        f"2. Complete your registration.\n"
-        f"3. Locate your <b>Quotex Trader ID</b> (numeric ID in your account profile).\n"
-        f"4. Return here and tap <b>'I Have Registered, Enter Trader ID'</b>.\n\n"
-        f"⚠️ <i>Important: Registrations not attributed to Affiliate ID {settings.QUOTEX_AFFILIATE_LINK_ID} cannot be verified.</i>"
+        "🔗 <b>CREATE QUOTEX ACCOUNT — NEXTGEN</b>\n\n"
+        f"1. Open link: {settings.QUOTEX_AFFILIATE_LINK}\n"
+        "2. Complete registration on Quotex.\n"
+        "3. Find your numeric <b>Trader ID</b> in profile.\n"
+        "4. Return here and tap below to submit ID.\n\n"
+        f"⚠️ <i>Must use Partner ID {settings.QUOTEX_AFFILIATE_LINK_ID} to qualify.</i>"
     )
     await callback.message.edit_text(
         text,
@@ -170,12 +169,9 @@ async def handle_account_existing(callback: CallbackQuery, state: FSMContext) ->
     await state.set_state(RegistrationStates.entering_trader_id)
 
     text = (
-        "🔑 <b>EXISTING QUOTEX ACCOUNT VERIFICATION</b>\n\n"
-        "Please provide your numeric <b>Quotex Trader ID</b>.\n\n"
-        "⚠️ <b>Notice on Affiliate Attribution:</b>\n"
-        f"Your account must be registered under Affiliate Link ID <code>{settings.QUOTEX_AFFILIATE_LINK_ID}</code>. "
-        "Our compliance team will inspect your account attribution before access can be approved.\n\n"
-        "<b>Please reply with your Quotex Trader ID now:</b>"
+        "🔑 <b>EXISTING QUOTEX ACCOUNT</b>\n\n"
+        f"Your account must be registered under Partner ID <code>{settings.QUOTEX_AFFILIATE_LINK_ID}</code>.\n\n"
+        "<b>Reply with your numeric Quotex Trader ID now:</b>"
     )
     await callback.message.edit_text(text, parse_mode="HTML")
     await callback.answer()
@@ -186,8 +182,8 @@ async def handle_enter_trader_id_now(callback: CallbackQuery, state: FSMContext)
     """Prompt new user for trader ID."""
     await state.set_state(RegistrationStates.entering_trader_id)
     text = (
-        "✍️ <b>ENTER YOUR QUOTEX TRADER ID</b>\n\n"
-        "Please enter your numeric Quotex Trader ID (found in your Quotex profile settings):\n\n"
+        "✍️ <b>ENTER TRADER ID</b>\n\n"
+        "Reply with your numeric Quotex Trader ID:\n"
         "<i>Example: 24198231</i>"
     )
     await callback.message.edit_text(text, parse_mode="HTML")
@@ -205,7 +201,7 @@ async def handle_back_to_account_type(callback: CallbackQuery, state: FSMContext
     text = (
         f"<b>Selected: {challenge_name}</b>\n"
         f"<b>Minimum Deposit:</b> ${min_deposit:.0f} USD\n\n"
-        f"Do you need to create a new Quotex account or do you have an existing one?"
+        "Do you need to create a new Quotex account or use an existing one?"
     )
     await callback.message.edit_text(text, reply_markup=get_account_type_keyboard(), parse_mode="HTML")
     await callback.answer()
@@ -219,9 +215,9 @@ async def handle_trader_id_input(message: Message, state: FSMContext) -> None:
     # Validate: Trader ID should be numeric and reasonable length (4 to 15 digits)
     if not trader_id_raw.isdigit() or len(trader_id_raw) < 4 or len(trader_id_raw) > 15:
         await message.answer(
-            "❌ <b>Invalid Trader ID Format</b>\n\n"
-            "Quotex Trader IDs consist only of numbers (e.g. <code>24198231</code>).\n"
-            "Please check your Quotex profile and reply with your valid numeric ID:",
+            "❌ <b>Invalid Trader ID</b>\n\n"
+            "Trader ID must be numbers only (e.g. <code>24198231</code>).\n"
+            "Please reply with your valid numeric ID:",
             parse_mode="HTML"
         )
         return
@@ -233,16 +229,13 @@ async def handle_trader_id_input(message: Message, state: FSMContext) -> None:
     user = message.from_user
 
     summary_text = (
-        "📋 <b>REVIEW REGISTRATION DETAILS</b>\n\n"
-        f"<b>Participant:</b> {user.full_name}\n"
-        f"<b>Telegram Username:</b> @{user.username or 'none'}\n"
-        f"<b>Telegram ID:</b> <code>{user.id}</code>\n"
-        f"<b>Selected Challenge:</b> {data.get('challenge_name')}\n"
-        f"<b>Minimum Deposit:</b> ${data.get('min_deposit', 100):.0f} USD\n"
-        f"<b>Quotex Trader ID:</b> <code>{trader_id_raw}</code>\n"
-        f"<b>Account Type:</b> {data.get('account_type', 'new').title()}\n"
-        f"<b>Registration Timestamp:</b> {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}\n\n"
-        "⚠️ <i>Please confirm all details are accurate before submitting.</i>"
+        "📋 <b>CONFIRM REGISTRATION — NEXTGEN</b>\n\n"
+        f"• <b>Participant:</b> {user.full_name}\n"
+        f"• <b>Challenge:</b> {data.get('challenge_name')}\n"
+        f"• <b>Trader ID:</b> <code>{trader_id_raw}</code>\n"
+        f"• <b>Min Deposit:</b> ${data.get('min_deposit', 100):.0f} USD\n"
+        f"• <b>Account:</b> {data.get('account_type', 'new').title()}\n\n"
+        "Tap <b>Confirm & Submit</b> below to verify."
     )
     await message.answer(summary_text, reply_markup=get_confirmation_keyboard(), parse_mode="HTML")
 
@@ -370,45 +363,42 @@ async def handle_my_status(callback: CallbackQuery, session: AsyncSession) -> No
 
     if not regs:
         await callback.message.edit_text(
-            "ℹ️ <b>No Active Registrations Found</b>\n\n"
-            "You have not registered for any Prime Scalpers challenges yet. "
-            "Tap below to begin your enrollment:",
+            "ℹ️ <b>No Registrations Found</b>\n\n"
+            "You haven't registered for any NextGen challenges yet.",
             reply_markup=get_start_keyboard(),
             parse_mode="HTML"
         )
         await callback.answer()
         return
 
-    lines = ["📋 <b>YOUR PRIME SCALPERS REGISTRATIONS</b>", "───────────────────────────"]
+    lines = ["📋 <b>YOUR REGISTRATIONS — NEXTGEN</b>", "───────────────────────────"]
 
     for r in regs:
         status_badge = (
             "🟢 APPROVED" if r.status == RegistrationStatus.APPROVED
             else "🚀 INVITED" if r.status == RegistrationStatus.INVITED
-            else "⭐️ ACTIVE MEMBER" if r.status == RegistrationStatus.JOINED
+            else "⭐️ MEMBER" if r.status == RegistrationStatus.JOINED
             else "🔴 REJECTED" if r.status == RegistrationStatus.REJECTED
             else "⏳ PENDING"
         )
 
         v_badge = (
             "✅ Verified" if r.verification_status == VerificationStatus.VERIFIED
-            else "🔍 Under Manual Review" if r.verification_status == VerificationStatus.MANUAL_REVIEW
-            else "⚠️ Deposit Required" if r.verification_status == VerificationStatus.DEPOSIT_REQUIRED
+            else "🔍 Manual Review" if r.verification_status == VerificationStatus.MANUAL_REVIEW
+            else "⚠️ Deposit Needed" if r.verification_status == VerificationStatus.DEPOSIT_REQUIRED
             else "❌ Wrong Affiliate" if r.verification_status == VerificationStatus.WRONG_AFFILIATE
             else "⏳ Pending"
         )
 
         lines.append(
-            f"<b>Challenge:</b> {r.challenge.name}\n"
-            f"<b>Registration ID:</b> #{r.id}\n"
-            f"<b>Trader ID:</b> <code>{r.quotex_trader_id}</code>\n"
-            f"<b>Status:</b> {status_badge}\n"
-            f"<b>Verification:</b> {v_badge}\n"
-            f"<b>Date:</b> {r.created_at.strftime('%Y-%m-%d %H:%M UTC')}"
+            f"• <b>Challenge:</b> {r.challenge.name}\n"
+            f"• <b>Trader ID:</b> <code>{r.quotex_trader_id}</code>\n"
+            f"• <b>Status:</b> {status_badge} ({v_badge})\n"
+            f"• <b>Date:</b> {r.created_at.strftime('%Y-%m-%d %H:%M')}"
         )
 
         if r.admin_notes:
-            lines.append(f"<b>Notice:</b> <i>{r.admin_notes}</i>")
+            lines.append(f"• <b>Note:</b> <i>{r.admin_notes}</i>")
 
         lines.append("───────────────────────────")
 
@@ -426,11 +416,11 @@ async def handle_recheck_deposit(callback: CallbackQuery, session: AsyncSession)
         await callback.answer("Registration not found.", show_alert=True)
         return
 
-    if reg.status == RegistrationStatus.APPROVED:
-        await callback.answer("You are already approved and invited! Check channel access.", show_alert=True)
+    if reg.status in (RegistrationStatus.APPROVED, RegistrationStatus.INVITED, RegistrationStatus.JOINED):
+        await callback.answer("You are already verified and invited!", show_alert=True)
         return
 
-    await callback.answer("Re-checking deposit with Quotex Partner Bot...")
+    await callback.answer("Checking deposit with Quotex Partner Bot...")
 
     from app.services.verification import VerificationService
     res = await VerificationService.verify_registration_automated(
@@ -441,32 +431,38 @@ async def handle_recheck_deposit(callback: CallbackQuery, session: AsyncSession)
 
     if res.status == VerificationStatus.VERIFIED:
         await callback.message.edit_text(
-            f"🎉 <b>DEPOSIT CONFIRMED & VERIFIED!</b>\n\n"
-            f"<b>Trader ID:</b> <code>{reg.quotex_trader_id}</code>\n"
-            f"<b>Verified Deposit:</b> ${res.deposit_amount or 0:.2f} USD\n\n"
-            "Your channel invitation link has been generated and sent above!",
+            f"🎉 <b>DEPOSIT VERIFIED!</b>\n\n"
+            f"• <b>Trader ID:</b> <code>{reg.quotex_trader_id}</code>\n"
+            f"• <b>Deposit:</b> ${res.deposit_amount or 0:.2f} USD\n\n"
+            "Your channel invitation has been generated and sent above!",
             reply_markup=get_status_action_keyboard(),
             parse_mode="HTML"
         )
     elif res.status == VerificationStatus.DEPOSIT_REQUIRED:
         await callback.answer(
-            f"Deposit is ${res.deposit_amount or 0:.2f}. Minimum required is ${reg.challenge.minimum_deposit:.0f}.",
+            f"Deposit is ${res.deposit_amount or 0:.2f}. Minimum is ${reg.challenge.minimum_deposit:.0f}.",
             show_alert=True
         )
     else:
-        await callback.answer(f"Status: {res.status.value}. {res.message}", show_alert=True)
+        await callback.answer(f"Status: {res.status.value}", show_alert=True)
 
 
 @router.callback_query(F.data == "contact_support")
 async def handle_contact_support(callback: CallbackQuery) -> None:
     """Display official support contact information."""
+    from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
     support_text = (
-        "💬 <b>PRIME SCALPERS SUPPORT & REVIEW DESK</b>\n\n"
-        "Need assistance with your challenge application, affiliate verification, or deposit confirmation?\n\n"
-        "• <b>Official Review Desk:</b> Direct Admin Review\n"
-        f"• <b>Affiliate ID:</b> <code>{settings.QUOTEX_AFFILIATE_LINK_ID}</code>\n"
-        f"• <b>Affiliate Link:</b> {settings.QUOTEX_AFFILIATE_LINK}\n\n"
-        "Our compliance team reviews registrations within business hours. Make sure your Quotex account has met the minimum deposit."
+        "💬 <b>NEXTGEN SUPPORT DESK</b>\n\n"
+        "• <b>Direct Admin:</b> @shridharsan1\n"
+        f"• <b>Partner ID:</b> <code>{settings.QUOTEX_AFFILIATE_LINK_ID}</code>\n"
+        f"• <b>Partner Link:</b> {settings.QUOTEX_AFFILIATE_LINK}\n\n"
+        "Tap below to message support directly:"
     )
-    await callback.message.edit_text(support_text, reply_markup=get_start_keyboard(), parse_mode="HTML")
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="💬 Message @shridharsan1", url="https://t.me/shridharsan1")],
+            [InlineKeyboardButton(text="🔙 Back to Main Menu", callback_data="cancel_to_start")]
+        ]
+    )
+    await callback.message.edit_text(support_text, reply_markup=kb, parse_mode="HTML")
     await callback.answer()

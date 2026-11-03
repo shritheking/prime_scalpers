@@ -54,23 +54,21 @@ class InvitationService:
         registration.status = RegistrationStatus.INVITED
         await session.commit()
 
-        # Send private invitation to approved user
+        # Send private invitation to approved user (Short, clear, invite link directly in message)
         msg = (
-            f"🎉 <b>CONGRATULATIONS! YOUR APPLICATION IS APPROVED</b>\n\n"
-            f"<b>Challenge:</b> {challenge.name}\n"
-            f"<b>Trader ID:</b> <code>{registration.quotex_trader_id}</code>\n"
-            f"<b>Status:</b> Approved & Slot Allocated\n\n"
-            f"Your personal single-use private channel invitation link has been generated.\n\n"
-            f"⚠️ <b>Important Security Rules:</b>\n"
-            f"• This link is strictly single-use (1 member limit).\n"
-            f"• It will expire in {expiry_hours} hours.\n"
-            f"• Do not share this link. Unauthorized accounts will be automatically kicked.\n\n"
-            f"Click below to enter the private community:"
+            f"🎉 <b>APPLICATION APPROVED — NEXTGEN</b>\n\n"
+            f"• <b>Challenge:</b> {challenge.name}\n"
+            f"• <b>Trader ID:</b> <code>{registration.quotex_trader_id}</code>\n"
+            f"• <b>Status:</b> Verified & Slot Allocated\n\n"
+            f"🔗 <b>Your Private Channel Invite Link:</b>\n"
+            f"{invite.invite_link}\n\n"
+            f"⚠️ <i>Single-use (1 member) • Valid for {expiry_hours}h • Support: @shridharsan1</i>"
         )
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
-                [InlineKeyboardButton(text="🚀 Enter Prime Scalpers Channel", url=invite.invite_link)],
-                [InlineKeyboardButton(text="📊 View Registration Status", callback_data="my_status")]
+                [InlineKeyboardButton(text="🚀 Open Channel Directly", url=invite.invite_link)],
+                [InlineKeyboardButton(text="📋 My Status", callback_data="my_status")],
+                [InlineKeyboardButton(text="💬 Support", url="https://t.me/shridharsan1")]
             ]
         )
 

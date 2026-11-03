@@ -98,6 +98,25 @@ class ChallengeService:
         return challenge
 
     @staticmethod
+    async def delete_challenge(session: AsyncSession, challenge_id: int) -> Tuple[bool, str]:
+        """Delete a challenge cohort or archive it if active registrations exist."""
+        challenge = await ChallengeService.get_challenge_by_id(session, challenge_id)
+        if not challenge:
+            return False, "Challenge not found."
+
+        reg_stmt = select(Registration).where(Registration.challenge_id == challenge_id)
+        res = await session.execute(reg_stmt)
+        regs = res.scalars().all()
+        if regs:
+            challenge.status = ChallengeStatus.ARCHIVED
+            await session.commit()
+            return True, f"Challenge '{challenge.name}' has existing participant records. It has been ARCHIVED and hidden from open registration."
+        else:
+            await session.delete(challenge)
+            await session.commit()
+            return True, f"Challenge '{challenge.name}' has been permanently deleted."
+
+    @staticmethod
     async def reserve_slot_atomic(
         session: AsyncSession,
         challenge_id: int

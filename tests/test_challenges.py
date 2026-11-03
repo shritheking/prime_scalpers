@@ -75,3 +75,22 @@ async def test_cannot_reduce_slots_below_allocated(test_session: AsyncSession):
     # Increasing or setting to 6 should succeed
     success_ok, _ = await ChallengeService.update_challenge_slots(test_session, challenge.id, 6)
     assert success_ok is True
+
+
+@pytest.mark.asyncio
+async def test_delete_challenge(test_session: AsyncSession):
+    challenge = await ChallengeService.create_challenge(
+        session=test_session,
+        name="Temporary Tier",
+        minimum_deposit=100.0,
+        max_slots=5
+    )
+
+    # Delete challenge with no registrations
+    success, msg = await ChallengeService.delete_challenge(test_session, challenge.id)
+    assert success is True
+    assert "permanently deleted" in msg
+
+    # Verify it no longer exists
+    found = await ChallengeService.get_challenge_by_id(test_session, challenge.id)
+    assert found is None

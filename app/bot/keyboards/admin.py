@@ -127,18 +127,31 @@ def get_challenges_management_keyboard(challenges: List[Challenge]) -> InlineKey
 
 def get_challenge_detail_keyboard(challenge_id: int, is_open: bool) -> InlineKeyboardMarkup:
     """Action keyboard for managing an individual challenge."""
-    toggle_text = "🔒 Close Registrations" if is_open else "🔓 Open Registrations"
+    toggle_text = "🔒 Close Cohort" if is_open else "🔓 Open Cohort"
     toggle_action = "close" if is_open else "open"
 
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(text=toggle_text, callback_data=f"admin_chal_toggle:{challenge_id}:{toggle_action}"),
-                InlineKeyboardButton(text="🔢 Change Max Slots", callback_data=f"admin_chal_slots:{challenge_id}")
+                InlineKeyboardButton(text="🔢 Change Slots", callback_data=f"admin_chal_slots:{challenge_id}")
+            ],
+            [
+                InlineKeyboardButton(text="🗑️ Delete Challenge", callback_data=f"admin_chal_del_confirm:{challenge_id}")
             ],
             [
                 InlineKeyboardButton(text="🔙 Challenges List", callback_data="admin_challenges_list")
             ]
+        ]
+    )
+
+
+def get_challenge_delete_confirm_keyboard(challenge_id: int) -> InlineKeyboardMarkup:
+    """Confirmation keyboard before deleting a challenge."""
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="⚠️ YES, Delete Challenge", callback_data=f"admin_chal_delete:{challenge_id}")],
+            [InlineKeyboardButton(text="❌ Cancel", callback_data=f"admin_chal_detail:{challenge_id}")]
         ]
     )
 

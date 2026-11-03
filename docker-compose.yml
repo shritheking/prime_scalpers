@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  prime-scalpers:
+    build: .
+    container_name: prime_scalpers_bot
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

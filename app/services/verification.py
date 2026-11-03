@@ -37,10 +37,12 @@ class VerificationService:
 
         logger.info(f"Running automated verification for Reg #{registration.id} (Trader {registration.quotex_trader_id}) via {provider_name}...")
 
+        effective_min_deposit = 0.0 if settings.MINIMUM_DEPOSIT == 0 else challenge.minimum_deposit
+
         # 1. Query the provider
         result: TraderVerificationResult = await provider.verify_trader(
             trader_id=registration.quotex_trader_id,
-            minimum_deposit=challenge.minimum_deposit,
+            minimum_deposit=effective_min_deposit,
             expected_affiliate_id=challenge.affiliate_link_id
         )
 
@@ -155,7 +157,7 @@ class VerificationService:
         elif result.status == VerificationStatus.DEPOSIT_REQUIRED:
             # 2. Deposit required: Notify participant with direct Check Again button
             curr_dep = result.deposit_amount or 0.0
-            min_dep = challenge.minimum_deposit
+            min_dep = 0.0 if settings.MINIMUM_DEPOSIT == 0 else challenge.minimum_deposit
             kb = InlineKeyboardMarkup(
                 inline_keyboard=[
                     [InlineKeyboardButton(text="🔄 Check Deposit Again", callback_data=f"recheck_deposit:{registration.id}")],
@@ -237,7 +239,7 @@ class VerificationService:
             trader_id=registration.quotex_trader_id,
             observed_affiliate_id=observed_affiliate_id,
             observed_deposit=observed_deposit,
-            minimum_deposit=challenge.minimum_deposit,
+            minimum_deposit=0.0 if settings.MINIMUM_DEPOSIT == 0 else challenge.minimum_deposit,
             expected_affiliate_id=challenge.affiliate_link_id
         )
 

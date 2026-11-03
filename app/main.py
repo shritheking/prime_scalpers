@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app.config import settings
 from app.database.session import init_db
-from app.bot.bot_instance import create_bot_and_dispatcher
+from app.bot.bot_instance import create_bot_and_dispatcher, setup_bot_commands
 
 # Configure logging
 logging.basicConfig(
@@ -33,6 +33,7 @@ async def lifespan(app: FastAPI):
     # 2. Initialize Telegram Bot
     bot, dp = create_bot_and_dispatcher()
     bot_instance = bot
+    await setup_bot_commands(bot)
 
     # 3. Start Background Automated Verification Worker
     from app.services.worker import VerificationWorker

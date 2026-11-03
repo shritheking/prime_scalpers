@@ -359,24 +359,15 @@ async def handle_confirm_submission(callback: CallbackQuery, state: FSMContext, 
                 pass
 
 
-@router.callback_query(F.data == "my_status")
-async def handle_my_status(callback: CallbackQuery, session: AsyncSession) -> None:
-    """View participant registration status and invitation links."""
-    user = callback.from_user
-    regs = await RegistrationService.get_participant_registrations(session, user.id)
-
+def _build_status_text(regs) -> str:
+    """Helper to format participant registrations."""
     if not regs:
-        await callback.message.edit_text(
+        return (
             "ℹ️ <b>No Registrations Found</b>\n\n"
-            "You haven't registered for any NextGen challenges yet.",
-            reply_markup=get_start_keyboard(),
-            parse_mode="HTML"
+            "You haven't registered for any Prime Scalpers challenges yet."
         )
-        await callback.answer()
-        return
 
-    lines = ["📋 <b>YOUR REGISTRATIONS — NEXTGEN</b>", "───────────────────────────"]
-
+    lines = ["📋 <b>YOUR REGISTRATIONS — PRIME SCALPERS</b>", "───────────────────────────"]
     for r in regs:
         status_badge = (
             "🟢 APPROVED" if r.status == RegistrationStatus.APPROVED
@@ -405,9 +396,80 @@ async def handle_my_status(callback: CallbackQuery, session: AsyncSession) -> No
             lines.append(f"• <b>Note:</b> <i>{r.admin_notes}</i>")
 
         lines.append("───────────────────────────")
+    return "\n".join(lines)
 
-    await callback.message.edit_text("\n".join(lines), reply_markup=get_status_action_keyboard(), parse_mode="HTML")
+
+@router.callback_query(F.data == "my_status")
+async def handle_my_status(callback: CallbackQuery, session: AsyncSession) -> None:
+    """View participant registration status and invitation links."""
+    user = callback.from_user
+    regs = await RegistrationService.get_participant_registrations(session, user.id)
+
+    if not regs:
+        await callback.message.edit_text(
+            _build_status_text(regs),
+            reply_markup=get_start_keyboard(),
+            parse_mode="HTML"
+        )
+        await callback.answer()
+        return
+
+    await callback.message.edit_text(
+        _build_status_text(regs),
+        reply_markup=get_status_action_keyboard(),
+        parse_mode="HTML"
+    )
     await callback.answer()
+
+
+@router.message(Command("status"))
+async def handle_status_command(message: Message, session: AsyncSession) -> None:
+    """Check status via command menu /status."""
+    user = message.from_user
+    if not user:
+        return
+    regs = await RegistrationService.get_participant_registrations(session, user.id)
+    keyboard = get_status_action_keyboard() if regs else get_start_keyboard()
+    await message.answer(_build_status_text(regs), reply_markup=keyboard, parse_mode="HTML")
+
+
+@router.message(Command("challenges"))
+async def handle_challenges_command(message: Message, state: FSMContext, session: AsyncSession) -> None:
+    """View available challenges via command menu /challenges."""
+    await state.clear()
+    challenges = await ChallengeService.list_open_challenges(session)
+    if not challenges:
+        await message.answer(
+            "⚠️ <b>Registrations Currently Closed</b>\n\n"
+            "There are currently no active challenge cohorts open. Please check back soon or contact @primescalperbinary.",
+            reply_markup=get_start_keyboard(),
+            parse_mode="HTML"
+        )
+        return
+
+    text = (
+        "🎯 <b>SELECT CHALLENGE TIER</b>\n\n"
+        "Choose an active cohort below to view requirements and open slots:"
+    )
+    await state.set_state(RegistrationStates.selecting_challenge)
+    await message.answer(
+        text,
+        reply_markup=get_challenge_selection_keyboard(challenges),
+        parse_mode="HTML"
+    )
+
+
+@router.message(Command("support"))
+async def handle_support_command(message: Message) -> None:
+    """View support information via command menu /support."""
+    support_text = (
+        "💬 <b>PRIME SCALPERS SUPPORT</b>\n\n"
+        "• <b>Direct Support:</b> @primescalperbinary\n"
+        "• <b>Quotex Partner Link:</b> <a href=\"https://broker-qx.pro/?lid=2414647\">Sign Up Here</a>\n\n"
+        "Need help with your Trader ID verification or deposit? Message our official support anytime.\n\n"
+        "🛠️ <i>Developed by <a href=\"https://t.me/shridharsan1\">NextGen</a></i>"
+    )
+    await message.answer(support_text, reply_markup=get_start_keyboard(), parse_mode="HTML")
 
 
 @router.callback_query(F.data.startswith("recheck_deposit:"))

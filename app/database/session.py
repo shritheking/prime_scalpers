@@ -4,10 +4,12 @@ from app.config import settings
 from app.database.models import Base
 
 # Configure async engine
-# Note: SQLite needs check_same_thread=False
+# Note: SQLite needs check_same_thread=False; Supabase PgBouncer pooler needs statement_cache_size=0
 connect_args = {}
 if settings.async_database_url.startswith("sqlite"):
     connect_args["check_same_thread"] = False
+elif "pooler.supabase.com" in settings.async_database_url or ":6543" in settings.async_database_url:
+    connect_args["statement_cache_size"] = 0
 
 engine = create_async_engine(
     settings.async_database_url,

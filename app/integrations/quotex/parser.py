@@ -61,9 +61,9 @@ class QuotexPartnerResponseParser:
         country_match = re.search(r"Country:\s*([^\n\r]+)", raw_text, re.IGNORECASE)
         country = country_match.group(1).strip() if country_match else None
 
-        # Registration Date
+        # Registration Date (strips optional parentheses)
         reg_date_match = re.search(r"Registration\s*Date:\s*([^\n\r]+)", raw_text, re.IGNORECASE)
-        registration_date = reg_date_match.group(1).strip() if reg_date_match else None
+        registration_date = reg_date_match.group(1).strip(" ()\t\r\n") if reg_date_match else None
 
         # Affiliate program
         program_match = re.search(r"Affiliate\s*program:\s*([^\n\r]+)", raw_text, re.IGNORECASE)

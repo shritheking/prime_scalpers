@@ -10,7 +10,10 @@ def get_start_keyboard() -> InlineKeyboardMarkup:
         inline_keyboard=[
             [InlineKeyboardButton(text="🚀 Register for Challenge", callback_data="start_register")],
             [InlineKeyboardButton(text="📋 My Registration Status", callback_data="my_status")],
-            [InlineKeyboardButton(text="💬 Contact Support", callback_data="contact_support")]
+            [
+                InlineKeyboardButton(text="💬 Support", callback_data="contact_support"),
+                InlineKeyboardButton(text="⚡ Developed by NextGen", url="https://t.me/shridharsan1")
+            ]
         ]
     )
 

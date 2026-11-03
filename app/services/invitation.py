@@ -56,19 +56,20 @@ class InvitationService:
 
         # Send private invitation to approved user (Short, clear, invite link directly in message)
         msg = (
-            f"🎉 <b>APPLICATION APPROVED — NEXTGEN</b>\n\n"
+            f"🎉 <b>APPLICATION APPROVED • PRIME SCALPERS</b>\n\n"
             f"• <b>Challenge:</b> {challenge.name}\n"
             f"• <b>Trader ID:</b> <code>{registration.quotex_trader_id}</code>\n"
             f"• <b>Status:</b> Verified & Slot Allocated\n\n"
             f"🔗 <b>Your Private Channel Invite Link:</b>\n"
             f"{invite.invite_link}\n\n"
-            f"⚠️ <i>Single-use (1 member) • Valid for {expiry_hours}h • Support: @shridharsan1</i>"
+            f"⚠️ <i>Single-use (1 member) • Valid for {expiry_hours}h • Support: @shridharsan1</i>\n\n"
+            f"🛠️ <i>Developed by <a href=\"https://t.me/shridharsan1\">NextGen</a></i>"
         )
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
                 [InlineKeyboardButton(text="🚀 Open Channel Directly", url=invite.invite_link)],
                 [InlineKeyboardButton(text="📋 My Status", callback_data="my_status")],
-                [InlineKeyboardButton(text="💬 Support", url="https://t.me/shridharsan1")]
+                [InlineKeyboardButton(text="⚡ Developed by NextGen", url="https://t.me/shridharsan1")]
             ]
         )
 

@@ -164,14 +164,14 @@ class VerificationService:
                 ]
             )
             text = (
-                f"⚠️ <b>DEPOSIT REQUIRED — NEXTGEN</b>\n\n"
+                f"⚠️ <b>DEPOSIT REQUIRED • PRIME SCALPERS</b>\n\n"
                 f"• <b>Challenge:</b> {challenge.name}\n"
                 f"• <b>Trader ID:</b> <code>{registration.quotex_trader_id}</code>\n"
                 f"• <b>Affiliate ID:</b> ✅ Matched\n"
                 f"• <b>Current Deposit:</b> ${curr_dep:.2f} USD\n"
                 f"• <b>Required Minimum:</b> ${min_dep:.2f} USD\n\n"
-                f"💡 <i>Fund your Quotex account, then tap below to auto-verify instantly.</i>\n"
-                f"Support: @shridharsan1"
+                f"💡 <i>Fund your Quotex account, then tap below to auto-verify instantly.</i>\n\n"
+                f"🛠️ <i>Developed by <a href=\"https://t.me/shridharsan1\">NextGen</a></i>"
             )
             try:
                 await bot.send_message(chat_id=participant.telegram_id, text=text, reply_markup=kb, parse_mode="HTML")
@@ -181,13 +181,13 @@ class VerificationService:
         elif result.status == VerificationStatus.WRONG_AFFILIATE:
             # 3. Wrong affiliate (Short and clear)
             text = (
-                f"❌ <b>AFFILIATE MISMATCH — NEXTGEN</b>\n\n"
+                f"❌ <b>AFFILIATE MISMATCH • PRIME SCALPERS</b>\n\n"
                 f"• <b>Challenge:</b> {challenge.name}\n"
                 f"• <b>Trader ID:</b> <code>{registration.quotex_trader_id}</code>\n\n"
                 f"This Trader ID is not registered under our official affiliate partner link.\n\n"
                 f"👉 <b>Create an eligible account here:</b>\n"
                 f"{settings.QUOTEX_AFFILIATE_LINK}\n\n"
-                f"Need help? Contact @shridharsan1"
+                f"🛠️ <i>Developed by <a href=\"https://t.me/shridharsan1\">NextGen</a></i>"
             )
             try:
                 await bot.send_message(chat_id=participant.telegram_id, text=text, parse_mode="HTML")
@@ -197,11 +197,11 @@ class VerificationService:
         elif result.status == VerificationStatus.NOT_FOUND:
             # 4. Trader not found (Short and clear)
             text = (
-                f"⚠️ <b>TRADER ID NOT FOUND — NEXTGEN</b>\n\n"
+                f"⚠️ <b>TRADER ID NOT FOUND • PRIME SCALPERS</b>\n\n"
                 f"• <b>Trader ID:</b> <code>{registration.quotex_trader_id}</code>\n\n"
                 f"Trader ID not found in partner records. Please ensure you registered via:\n"
                 f"{settings.QUOTEX_AFFILIATE_LINK}\n\n"
-                f"Need help? Contact @shridharsan1"
+                f"🛠️ <i>Developed by <a href=\"https://t.me/shridharsan1\">NextGen</a></i>"
             )
             try:
                 await bot.send_message(chat_id=participant.telegram_id, text=text, parse_mode="HTML")

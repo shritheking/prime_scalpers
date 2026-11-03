@@ -38,11 +38,12 @@ async def handle_start(message: Message, state: FSMContext, session: AsyncSessio
         )
 
     welcome_text = (
-        "⚡ <b>NEXTGEN TRADING CHALLENGE</b>\n\n"
+        "⚡ <b>PRIME SCALPERS CHALLENGE</b>\n\n"
         "Welcome! Register for the challenge, verify your eligibility, and receive your private community invite link.\n\n"
-        "• <b>Live Setups & Signals</b>\n"
+        "• <b>Live Setups & Market Analysis</b>\n"
         "• <b>Private Community Access</b>\n"
-        "• <b>Direct Support:</b> @shridharsan1"
+        "• <b>Direct Support:</b> @shridharsan1\n\n"
+        "🛠️ <i>Developed by <a href=\"https://t.me/shridharsan1\">NextGen</a></i>"
     )
     await message.answer(welcome_text, reply_markup=get_start_keyboard(), parse_mode="HTML")
 
@@ -52,11 +53,12 @@ async def handle_cancel_to_start(callback: CallbackQuery, state: FSMContext) -> 
     """Reset wizard and return to start menu."""
     await state.clear()
     welcome_text = (
-        "⚡ <b>NEXTGEN TRADING CHALLENGE</b>\n\n"
+        "⚡ <b>PRIME SCALPERS CHALLENGE</b>\n\n"
         "Welcome! Register for the challenge, verify your eligibility, and receive your private community invite link.\n\n"
-        "• <b>Live Setups & Signals</b>\n"
+        "• <b>Live Setups & Market Analysis</b>\n"
         "• <b>Private Community Access</b>\n"
-        "• <b>Direct Support:</b> @shridharsan1"
+        "• <b>Direct Support:</b> @shridharsan1\n\n"
+        "🛠️ <i>Developed by <a href=\"https://t.me/shridharsan1\">NextGen</a></i>"
     )
     await callback.message.edit_text(welcome_text, reply_markup=get_start_keyboard(), parse_mode="HTML")
     await callback.answer("Registration cancelled.")
@@ -147,12 +149,13 @@ async def handle_account_new(callback: CallbackQuery, state: FSMContext) -> None
     await state.set_state(RegistrationStates.viewing_affiliate_notice)
 
     text = (
-        "🔗 <b>CREATE QUOTEX ACCOUNT — NEXTGEN</b>\n\n"
+        "🔗 <b>CREATE QUOTEX ACCOUNT</b>\n\n"
         f"1. Open link: {settings.QUOTEX_AFFILIATE_LINK}\n"
         "2. Complete registration on Quotex.\n"
         "3. Find your numeric <b>Trader ID</b> in profile.\n"
         "4. Return here and tap below to submit ID.\n\n"
-        f"⚠️ <i>Must use Partner ID {settings.QUOTEX_AFFILIATE_LINK_ID} to qualify.</i>"
+        f"⚠️ <i>Must use Partner ID {settings.QUOTEX_AFFILIATE_LINK_ID} to qualify.</i>\n\n"
+        "🛠️ <i>Developed by <a href=\"https://t.me/shridharsan1\">NextGen</a></i>"
     )
     await callback.message.edit_text(
         text,
@@ -229,13 +232,14 @@ async def handle_trader_id_input(message: Message, state: FSMContext) -> None:
     user = message.from_user
 
     summary_text = (
-        "📋 <b>CONFIRM REGISTRATION — NEXTGEN</b>\n\n"
+        "📋 <b>CONFIRM REGISTRATION • PRIME SCALPERS</b>\n\n"
         f"• <b>Participant:</b> {user.full_name}\n"
         f"• <b>Challenge:</b> {data.get('challenge_name')}\n"
         f"• <b>Trader ID:</b> <code>{trader_id_raw}</code>\n"
         f"• <b>Min Deposit:</b> ${data.get('min_deposit', 100):.0f} USD\n"
         f"• <b>Account:</b> {data.get('account_type', 'new').title()}\n\n"
-        "Tap <b>Confirm & Submit</b> below to verify."
+        "Tap <b>Confirm & Submit</b> below to verify.\n\n"
+        "🛠️ <i>Developed by <a href=\"https://t.me/shridharsan1\">NextGen</a></i>"
     )
     await message.answer(summary_text, reply_markup=get_confirmation_keyboard(), parse_mode="HTML")
 

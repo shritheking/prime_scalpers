@@ -98,6 +98,9 @@ async def run_auth():
             elif line.startswith("TELEGRAM_SESSION_STRING="):
                 new_lines.append(f"TELEGRAM_SESSION_STRING={session_string}\n")
                 replaced_keys.add("TELEGRAM_SESSION_STRING")
+            elif line.startswith("QUOTEX_VERIFICATION_PROVIDER="):
+                new_lines.append("QUOTEX_VERIFICATION_PROVIDER=mtproto\n")
+                replaced_keys.add("QUOTEX_VERIFICATION_PROVIDER")
             else:
                 new_lines.append(line)
 
@@ -107,6 +110,8 @@ async def run_auth():
             new_lines.append(f"TELEGRAM_API_HASH={api_hash}\n")
         if "TELEGRAM_SESSION_STRING" not in replaced_keys:
             new_lines.append(f"TELEGRAM_SESSION_STRING={session_string}\n")
+        if "QUOTEX_VERIFICATION_PROVIDER" not in replaced_keys:
+            new_lines.append("QUOTEX_VERIFICATION_PROVIDER=mtproto\n")
 
         with open(env_path, "w", encoding="utf-8") as f:
             f.writelines(new_lines)

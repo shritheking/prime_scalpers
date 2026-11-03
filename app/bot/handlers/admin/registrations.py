@@ -13,6 +13,7 @@ from app.services.registration import RegistrationService
 from app.services.verification import VerificationService
 from app.services.invitation import InvitationService
 from app.database.models import RegistrationStatus, VerificationStatus
+from app.config import settings
 
 router = Router(name="admin_registrations_router")
 router.message.filter(IsAdminFilter())

@@ -1,48 +1,86 @@
 #!/usr/bin/env python3
 """Interactive setup script for generating Telethon MTProto StringSession.
 
-Run this script once locally to authenticate your affiliate Telegram account
+Run this script to authenticate your affiliate Telegram account
 which has access to @QuotexPartnerBot.
 
-Security notice:
-- The resulting session string will be written to .env as TELEGRAM_SESSION_STRING.
-- Never commit .env or share this session string.
+Compatible with Python 3.12, 3.13, and 3.14.
 """
 
 import os
 import sys
-from telethon.sync import TelegramClient
+import asyncio
+
+# Ensure SSL trust on Windows / cross-platform
+try:
+    import truststore
+    truststore.inject_into_ssl()
+except Exception:
+    pass
+
+# Ensure explicit event loop for Python 3.12+ / 3.14+
+try:
+    loop = asyncio.get_event_loop()
+except RuntimeError:
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+from telethon import TelegramClient
 from telethon.sessions import StringSession
+from telethon.errors import SessionPasswordNeededError
 
 
-def main():
+async def run_auth():
     print("=" * 60)
     print("PRIME SCALPERS • MTPROTO SESSION SETUP WIZARD")
     print("=" * 60)
     print("This wizard generates a secure Telethon StringSession to enable")
     print("automated queries to @QuotexPartnerBot.\n")
-    print("Get your API credentials from: https://my.telegram.org (under 'API development tools')\n")
 
-    api_id_str = input("Enter your Telegram API_ID: ").strip()
+    default_api_id = "24697725"
+    default_api_hash = "2147b12e27c3b9b8880c1c2353be966f"
+
+    api_id_input = input(f"Enter your Telegram API_ID [{default_api_id}]: ").strip()
+    api_id_str = api_id_input if api_id_input else default_api_id
     if not api_id_str.isdigit():
         print("❌ Invalid API ID. Must be numeric.")
         sys.exit(1)
     api_id = int(api_id_str)
 
-    api_hash = input("Enter your Telegram API_HASH: ").strip()
+    api_hash_input = input(f"Enter your Telegram API_HASH [{default_api_hash}]: ").strip()
+    api_hash = api_hash_input if api_hash_input else default_api_hash
     if not api_hash:
         print("❌ Invalid API HASH.")
         sys.exit(1)
 
-    print("\nConnecting to Telegram to authorize your affiliate account...")
-    with TelegramClient(StringSession(), api_id, api_hash) as client:
-        session_string = client.session.save()
-        me = client.get_me()
-        print(f"\n✅ Authorization successful for: {me.first_name} (@{me.username or 'none'})")
+    print("\nConnecting to Telegram DC...")
+    session = StringSession()
+    client = TelegramClient(session, api_id, api_hash)
+    await client.connect()
 
-    print("\nSession string generated successfully!")
+    phone = input("\nEnter your affiliate Telegram phone number (e.g. +919876543210): ").strip()
+    if not phone:
+        print("❌ Phone number cannot be empty.")
+        await client.disconnect()
+        sys.exit(1)
 
-    # Offer to update .env
+    print(f"Sending login code to {phone}...")
+    code_hash = (await client.send_code_request(phone)).phone_code_hash
+
+    code = input("Enter the login code you received in Telegram: ").strip()
+
+    try:
+        await client.sign_in(phone=phone, code=code, phone_code_hash=code_hash)
+    except SessionPasswordNeededError:
+        password = input("Enter your Telegram Two-Step Verification (2FA) password: ").strip()
+        await client.sign_in(password=password)
+
+    session_string = client.session.save()
+    me = await client.get_me()
+    print(f"\n✅ Authorization successful for: {me.first_name} (@{me.username or 'none'}, ID: {me.id})")
+    await client.disconnect()
+
+    # Write credentials to .env
     env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
     if os.path.exists(env_path):
         with open(env_path, "r", encoding="utf-8") as f:
@@ -73,14 +111,20 @@ def main():
         with open(env_path, "w", encoding="utf-8") as f:
             f.writelines(new_lines)
 
-        print(f"✅ Credentials written directly to: {os.path.abspath(env_path)}")
+        print(f"\n✅ Credentials written directly to: {os.path.abspath(env_path)}")
     else:
-        print("\nSave the following lines into your .env file:\n")
+        print("\nSave these lines in your .env file:\n")
         print(f"TELEGRAM_API_ID={api_id}")
         print(f"TELEGRAM_API_HASH={api_hash}")
         print(f"TELEGRAM_SESSION_STRING={session_string}\n")
 
-    print("Setup complete! Your bot can now query @QuotexPartnerBot automatically.")
+    print("=" * 60)
+    print("SUCCESS! Automated Quotex Partner Bot integration is now configured.")
+    print("=" * 60)
+
+
+def main():
+    loop.run_until_complete(run_auth())
 
 
 if __name__ == "__main__":

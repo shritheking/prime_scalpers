@@ -40,17 +40,27 @@ async def lifespan(app: FastAPI):
     worker_instance.start()
     logger.info("Background verification worker active.")
 
-    # 4. Start Telegram Long-Polling in background task
+    # 4. Start Telegram Long-Polling in background task with resilient retry loop
     async def start_polling():
-        try:
-            logger.info("Starting Telegram Bot Polling...")
-            # Drop pending updates to avoid processing stale backlog
-            await bot.delete_webhook(drop_pending_updates=True)
-            await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
-        except asyncio.CancelledError:
-            logger.info("Polling task cancelled.")
-        except Exception as e:
-            logger.critical(f"Bot polling encountered fatal error: {e}", exc_info=True)
+        retry_delay = 3
+        while True:
+            try:
+                logger.info("Connecting to Telegram Bot API...")
+                # Drop pending updates to avoid processing stale backlog
+                await bot.delete_webhook(drop_pending_updates=True)
+                logger.info("Connected! Starting Telegram Bot Polling...")
+                await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
+                break
+            except asyncio.CancelledError:
+                logger.info("Polling task cancelled.")
+                break
+            except Exception as e:
+                logger.warning(
+                    f"Temporary network or DNS error connecting to Telegram Bot API ({e}). "
+                    f"Retrying in {retry_delay}s..."
+                )
+                await asyncio.sleep(retry_delay)
+                retry_delay = min(30, retry_delay * 1.5)
 
     polling_task = asyncio.create_task(start_polling())
     logger.info("Prime Scalpers backend is active and listening.")
